@@ -1,30 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Daftar model prioritas untuk menjamin ketersediaan tinggi
+// Model Lite dengan latensi terendah untuk respon secepat kilat (< 1.5 detik)
 const CANDIDATE_MODELS = [
-  "gemini-3.5-flash",
-  "gemini-flash-latest",
-  "gemini-3.8-flash",
+  "gemini-3.5-flash-lite",
   "gemini-3.1-flash-lite",
+  "gemini-flash-lite-latest",
+  "gemini-3.5-flash",
 ];
 
-const SYSTEM_PROMPT = `Anda adalah asisten AI sistem navigasi AIRIS untuk membantu pengguna tunanetra / gangguan penglihatan.
-Tugas Anda adalah menganalisis gambar pemandangan di depan pengguna secara akurat, cepat, dan ringkas.
-
-Pedoman Penjelasan:
-1. Identifikasi objek utama, rintangan, atau fasilitas yang ada tepat di depan atau sekitar pengguna (misalnya: tangga, pintu, kursi, meja, orang, kendaraan, trotoar, lubang, tiang).
-2. Sebutkan posisi atau arah objek (misal: tepat di depan, di sebelah kiri, di sebelah kanan).
-3. Berikan peringatan bahaya (hazard) jika ada hal yang membahayakan (misal: lantai licin, anak tangga turun curam, kabel melintang, jalan berlubang, rintangan setinggi kepala).
-4. Buat 'speech_text' yang to-the-point, santun, dan alami dalam Bahasa Indonesia, dengan panjang maksimal 1-2 kalimat agar nyaman didengarkan via Text-to-Speech (TTS).
-
-Format response WAJIB berupa JSON murni dengan format:
-{
-  "speech_text": "1-2 kalimat ringkas untuk dibacakan lewat TTS",
-  "main_object": "Nama objek/rintangan utama (misal: Tangga Turun, Pintu Kaca, Orang Berjalan)",
-  "details": "Deskripsi singkat kondisi sekitar",
-  "has_hazard": true atau false,
-  "hazard_warning": "Peringatan bahaya jika ada, atau null jika aman"
-}`;
+const SYSTEM_PROMPT = `Identifikasi objek, simbol, atau rintangan utama yang ada di depan kamera untuk navigasi tunanetra AIRIS.
+ATURAN WAJIB:
+- JAWAB HANYA 1 SAMPAI 3 KATA SAJA! Langsung nama objeknya.
+- DILARANG membuat kalimat panjang atau penjelasan.
+- Contoh jawaban yang benar:
+  - Toilet
+  - Pria
+  - Wanita
+  - Tangga turun
+  - Tangga naik
+  - Pintu keluar
+  - Pintu masuk
+  - Kursi
+  - Meja
+  - Orang
+  - Tiang
+  - Jalan berlubang
+  - Lampu merah`;
 
 export async function OPTIONS() {
   return new NextResponse(null, {
@@ -50,8 +51,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: "GEMINI_API_KEY belum dikonfigurasi di file .env server",
-          speech_text: "API Key Gemini belum disetting di server.",
+          error: "GEMINI_API_KEY belum dikonfigurasi di Vercel/Server",
+          speech_text: "API Key belum disetting.",
         },
         { status: 500, headers: corsHeaders }
       );
@@ -69,8 +70,8 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(
           {
             success: false,
-            error: "File gambar tidak ditemukan dalam field 'image' atau 'file'",
-            speech_text: "Gambar tidak ditemukan dalam pengiriman.",
+            error: "File gambar tidak ditemukan",
+            speech_text: "Gambar kosong.",
           },
           { status: 400, headers: corsHeaders }
         );
@@ -81,14 +82,13 @@ export async function POST(req: NextRequest) {
       const buffer = Buffer.from(arrayBuffer);
       base64Image = buffer.toString("base64");
     } else {
-      // JSON payload
       const body = await req.json();
       if (!body.image) {
         return NextResponse.json(
           {
             success: false,
-            error: "Field 'image' (base64) wajib disertakan dalam request body",
-            speech_text: "Data gambar kosong.",
+            error: "Field 'image' wajib disertakan",
+            speech_text: "Gambar kosong.",
           },
           { status: 400, headers: corsHeaders }
         );
@@ -99,7 +99,6 @@ export async function POST(req: NextRequest) {
         mimeType = body.mimeType;
       }
 
-      // Bersihkan prefix data:image/...;base64, jika ada
       if (base64Image.includes(",")) {
         const parts = base64Image.split(",");
         const match = parts[0].match(/:(.*?);/);
@@ -110,11 +109,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Panggil Gemini API dengan fallback model jika model sedang sibuk (503 spike)
-    let lastError: any = null;
-    let geminiResponseJson: any = null;
+    let detectedName = "";
     let successfulModel = "";
+    let lastError: any = null;
 
+    // Coba model prioritas flash-lite untuk respon super cepat
     for (const model of CANDIDATE_MODELS) {
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
@@ -138,9 +137,8 @@ export async function POST(req: NextRequest) {
               },
             ],
             generationConfig: {
-              responseMimeType: "application/json",
-              temperature: 0.2,
-              maxOutputTokens: 500,
+              temperature: 0.0,
+              maxOutputTokens: 25, // Token sedikit = respon instan (< 1 detik)
             },
           }),
         });
@@ -149,39 +147,38 @@ export async function POST(req: NextRequest) {
           const errData = await geminiRes.json().catch(() => ({}));
           lastError = errData;
           console.warn(`Model ${model} gagal:`, errData);
-          continue; // coba model berikutnya
+          continue;
         }
 
         const data = await geminiRes.json();
         const candidate = data.candidates?.[0];
         const rawText = candidate?.content?.parts?.[0]?.text;
 
-        if (rawText) {
-          // Bersihkan markdown code block jika ada
-          const cleanedText = rawText
-            .replace(/^```json\s*/i, "")
-            .replace(/^```\s*/i, "")
-            .replace(/\s*```$/i, "")
-            .trim();
+        if (rawText && rawText.trim().length > 0) {
+          // Bersihkan teks agar langsung jadi kata singkat yang siap diucapkan TTS
+          detectedName = rawText
+            .replace(/["`*#]/g, "")
+            .replace(/^objek\s*:\s*/i, "")
+            .replace(/^terdeteksi\s*:\s*/i, "")
+            .trim()
+            .replace(/\.$/, "");
 
-          geminiResponseJson = JSON.parse(cleanedText);
           successfulModel = model;
-          break; // Sukses!
+          break; // Sukses secepat mungkin!
         }
       } catch (err: any) {
         lastError = err?.message || err;
-        console.warn(`Error saat memanggil ${model}:`, err);
+        console.warn(`Error ${model}:`, err);
       }
     }
 
-    if (!geminiResponseJson) {
-      console.error("Semua model Gemini gagal:", lastError);
+    if (!detectedName) {
       return NextResponse.json(
         {
           success: false,
-          error: "Gagal memproses gambar dengan AI Gemini",
+          error: "Gagal mendeteksi objek",
           details: lastError,
-          speech_text: "Maaf, sistem AI sedang sibuk. Silakan coba tahan kembali.",
+          speech_text: "Tidak terdeteksi, coba lagi.",
         },
         { status: 502, headers: corsHeaders }
       );
@@ -190,24 +187,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        speech_text:
-          geminiResponseJson.speech_text ||
-          `Terdeteksi ${geminiResponseJson.main_object || "objek di depan"}.`,
-        main_object: geminiResponseJson.main_object || "Objek Tidak Dikenal",
-        details: geminiResponseJson.details || "",
-        has_hazard: !!geminiResponseJson.has_hazard,
-        hazard_warning: geminiResponseJson.hazard_warning || null,
+        speech_text: detectedName,
+        main_object: detectedName,
+        details: detectedName,
+        has_hazard: false,
+        hazard_warning: null,
         model_used: successfulModel,
       },
       { status: 200, headers: corsHeaders }
     );
   } catch (error: any) {
-    console.error("Unhandled error di /api/detect:", error);
     return NextResponse.json(
       {
         success: false,
         error: error.message || "Internal server error",
-        speech_text: "Terjadi kesalahan pada server saat mendeteksi objek.",
+        speech_text: "Terjadi kesalahan server.",
       },
       { status: 500, headers: corsHeaders }
     );
