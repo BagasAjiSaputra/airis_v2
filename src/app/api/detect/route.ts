@@ -51,8 +51,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: "GEMINI_API_KEY belum dikonfigurasi di Vercel/Server",
-          speech_text: "API Key belum disetting.",
+          error: "Kunci layanan belum dikonfigurasi di Server",
+          speech_text: "Layanan server belum siap.",
         },
         { status: 500, headers: corsHeaders }
       );
@@ -192,7 +192,7 @@ export async function POST(req: NextRequest) {
         details: detectedName,
         has_hazard: false,
         hazard_warning: null,
-        model_used: successfulModel,
+        model_used: "AIRIS-Engine",
       },
       { status: 200, headers: corsHeaders }
     );

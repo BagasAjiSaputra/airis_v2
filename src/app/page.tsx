@@ -60,12 +60,15 @@ export default function Home() {
       {/* Duolingo-Style Header */}
       <header className="border-b-2 border-[#2B3D47] bg-[#19272E] sticky top-0 z-50 px-6 py-3.5 flex items-center justify-between shadow-md">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#58CC02] border-b-4 border-[#46A302] flex items-center justify-center font-black text-xl text-white shadow-sm">
-            AI
+          <div className="w-10 h-10 rounded-2xl bg-[#58CC02] border-b-4 border-[#46A302] flex items-center justify-center text-white shadow-sm">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
           </div>
           <div>
-            <h1 className="text-base font-black tracking-wide text-white uppercase">AIRIS AI Vision</h1>
-            <p className="text-xs font-bold text-[#8B9FA8]">Deteksi Objek Kilat (Gemini Flash Lite)</p>
+            <h1 className="text-base font-black tracking-wide text-white uppercase">AIRIS Vision</h1>
+            <p className="text-xs font-bold text-[#8B9FA8]">Deteksi Objek Cepat &amp; Presisi</p>
           </div>
         </div>
 
@@ -89,7 +92,7 @@ export default function Home() {
             </h2>
           </div>
           <p className="text-sm font-medium text-[#8B9FA8] leading-relaxed">
-            AI dilatih untuk langsung menyebutkan nama objek utama di depan secara singkat dan instan (contoh: <strong className="text-white">&quot;Toilet&quot;</strong>, <strong className="text-white">&quot;Tangga turun&quot;</strong>, <strong className="text-white">&quot;Pintu&quot;</strong>, <strong className="text-white">&quot;Kursi&quot;</strong>).
+            Sistem langsung menyebutkan nama objek utama di depan secara singkat dan instan (contoh: <strong className="text-white">&quot;Toilet&quot;</strong>, <strong className="text-white">&quot;Tangga turun&quot;</strong>, <strong className="text-white">&quot;Pintu&quot;</strong>, <strong className="text-white">&quot;Kursi&quot;</strong>).
           </p>
         </div>
 
@@ -247,7 +250,7 @@ export default function Home() {
                 </button>
 
                 <div className="text-[11px] font-bold text-[#8B9FA8] flex justify-between pt-2 border-t border-[#2B3D47]">
-                  <span>Model: {result.model_used}</span>
+                  <span>Mesin: AIRIS Neural Vision</span>
                   <span>Endpoint: POST /api/detect</span>
                 </div>
               </div>
