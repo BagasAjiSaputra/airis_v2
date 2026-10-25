@@ -46,61 +46,62 @@ export async function POST(req: NextRequest) {
     let publisher = "";
     let description = "";
     let found = false;
+    const apiKey = process.env.GEMINI_API_KEY;
 
-    // 1. Coba cari di Google Books API
+    // 1. Coba cari di OpenLibrary API terlebih dahulu (sangat cepat & tanpa kuota ketat)
     try {
-      const gBooksRes = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=isbn:${cleanBarcode}`,
-        { next: { revalidate: 3600 } }
+      const olRes = await fetch(
+        `https://openlibrary.org/api/books?bibkeys=ISBN:${cleanBarcode}&format=json&jscmd=data`,
+        { headers: { "User-Agent": "AIRIS-Assistive/1.0" }, next: { revalidate: 86400 } }
       );
-      if (gBooksRes.ok) {
-        const gData = await gBooksRes.json();
-        if (gData.totalItems > 0 && gData.items?.[0]?.volumeInfo) {
-          const info = gData.items[0].volumeInfo;
-          title = info.title || "";
-          author = Array.isArray(info.authors) ? info.authors.join(", ") : info.authors || "";
-          publisher = info.publisher || "";
-          description = info.description || "";
+      if (olRes.ok) {
+        const olData = await olRes.json();
+        const bookData = olData[`ISBN:${cleanBarcode}`];
+        if (bookData && bookData.title) {
+          title = bookData.title;
+          if (Array.isArray(bookData.authors) && bookData.authors.length > 0) {
+            author = bookData.authors.map((a: any) => a.name).join(", ");
+          }
+          if (Array.isArray(bookData.publishers) && bookData.publishers.length > 0) {
+            publisher = bookData.publishers.map((p: any) => p.name).join(", ");
+          }
+          description =
+            typeof bookData.notes === "string"
+              ? bookData.notes
+              : bookData.excerpts?.[0]?.text || "";
           found = true;
         }
       }
     } catch (e) {
-      console.warn("Gagal fetch Google Books:", e);
+      console.warn("Gagal fetch OpenLibrary:", e);
     }
 
-    // 2. Jika belum ditemukan, coba OpenLibrary API
+    // 2. Jika belum ditemukan, coba Google Books API (dengan API Key jika tersedia)
     if (!found) {
       try {
-        const olRes = await fetch(
-          `https://openlibrary.org/api/books?bibkeys=ISBN:${cleanBarcode}&format=json&jscmd=data`,
-          { next: { revalidate: 3600 } }
+        const keyParam = apiKey ? `&key=${apiKey}` : "";
+        const gBooksRes = await fetch(
+          `https://www.googleapis.com/books/v1/volumes?q=isbn:${cleanBarcode}${keyParam}`,
+          { next: { revalidate: 86400 } }
         );
-        if (olRes.ok) {
-          const olData = await olRes.json();
-          const bookData = olData[`ISBN:${cleanBarcode}`];
-          if (bookData) {
-            title = bookData.title || "";
-            if (Array.isArray(bookData.authors)) {
-              author = bookData.authors.map((a: any) => a.name).join(", ");
-            }
-            if (Array.isArray(bookData.publishers)) {
-              publisher = bookData.publishers.map((p: any) => p.name).join(", ");
-            }
-            description =
-              typeof bookData.notes === "string"
-                ? bookData.notes
-                : bookData.excerpts?.[0]?.text || "";
+        if (gBooksRes.ok) {
+          const gData = await gBooksRes.json();
+          if (gData.totalItems > 0 && gData.items?.[0]?.volumeInfo) {
+            const info = gData.items[0].volumeInfo;
+            title = info.title || "";
+            author = Array.isArray(info.authors) ? info.authors.join(", ") : info.authors || "";
+            publisher = info.publisher || "";
+            description = info.description || "";
             found = true;
           }
         }
       } catch (e) {
-        console.warn("Gagal fetch OpenLibrary:", e);
+        console.warn("Gagal fetch Google Books:", e);
       }
     }
 
     // 3. Ringkas sinopsis dalam Bahasa Indonesia via AI Engine internal
     let synopsis = "";
-    const apiKey = process.env.GEMINI_API_KEY;
 
     if (apiKey) {
       const prompt = found
