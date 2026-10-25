@@ -42,7 +42,6 @@ export default function Home() {
 
       setResult(data);
 
-      // Mainkan suara Text-to-Speech di browser jika didukung
       if ("speechSynthesis" in window && data.speech_text) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(data.speech_text);
@@ -57,42 +56,47 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-white flex flex-col font-sans">
-      {/* Header */}
-      <header className="border-b border-neutral-800 bg-neutral-900/60 backdrop-blur-md sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
+    <div className="min-h-screen bg-[#131F24] text-white flex flex-col font-sans selection:bg-[#58CC02]/30">
+      {/* Duolingo-Style Header */}
+      <header className="border-b-2 border-[#2B3D47] bg-[#19272E] sticky top-0 z-50 px-6 py-3.5 flex items-center justify-between shadow-md">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-lg shadow-lg shadow-blue-500/20">
+          <div className="w-10 h-10 rounded-2xl bg-[#58CC02] border-b-4 border-[#46A302] flex items-center justify-center font-black text-xl text-white shadow-sm">
             AI
           </div>
           <div>
-            <h1 className="text-lg font-bold tracking-tight">AIRIS AI Vision Server</h1>
-            <p className="text-xs text-neutral-400">Gemini-Powered Object & Obstacle Detection</p>
+            <h1 className="text-base font-black tracking-wide text-white uppercase">AIRIS AI Vision</h1>
+            <p className="text-xs font-bold text-[#8B9FA8]">Deteksi Objek Kilat (Gemini Flash Lite)</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span className="text-xs text-neutral-300 font-medium">Server Ready</span>
+
+        {/* Status Pill ala Duolingo */}
+        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full border-2 border-[#58CC02] bg-[#58CC02]/15">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#58CC02] animate-pulse"></span>
+          <span className="text-xs font-black text-[#58CC02] uppercase tracking-wider">Online</span>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-5xl w-full mx-auto p-6 md:p-10 flex flex-col gap-8">
-        {/* Intro Banner */}
-        <div className="bg-gradient-to-r from-blue-950/40 via-indigo-950/20 to-neutral-900 border border-blue-900/40 rounded-2xl p-6">
-          <h2 className="text-xl font-semibold text-blue-200 mb-1">
-            Endpoint API Pendeteksi Objek Depan (Mobile App)
-          </h2>
-          <p className="text-sm text-neutral-300 leading-relaxed">
-            Endpoint <code className="bg-neutral-800 px-2 py-0.5 rounded text-blue-300">/api/detect</code> siap menerima request gambar dari aplikasi mobile AIRIS (gesture swipe 4 jari &amp; tahan 3 detik). Endpoint ini memindai gambar menggunakan Gemini Flash AI untuk mendeskripsikan rintangan dan fasilitas di depan pengguna dalam format Text-to-Speech (TTS).
+      <main className="flex-1 max-w-4xl w-full mx-auto p-6 md:p-8 flex flex-col gap-6">
+        {/* Banner ala Duolingo */}
+        <div className="bg-[#19272E] border-2 border-[#2B3D47] border-b-4 rounded-3xl p-6 relative overflow-hidden">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="text-2xl">⚡</span>
+            <h2 className="text-lg font-black text-white uppercase tracking-wide">
+              Mode Cepat (1-3 Kata Saja)
+            </h2>
+          </div>
+          <p className="text-sm font-medium text-[#8B9FA8] leading-relaxed">
+            AI dilatih untuk langsung menyebutkan nama objek utama di depan secara singkat dan instan (contoh: <strong className="text-white">&quot;Toilet&quot;</strong>, <strong className="text-white">&quot;Tangga turun&quot;</strong>, <strong className="text-white">&quot;Pintu&quot;</strong>, <strong className="text-white">&quot;Kursi&quot;</strong>).
           </p>
         </div>
 
-        {/* Live Playground / Tester */}
+        {/* 2-Column Tester */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Upload / Camera Panel */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 flex flex-col gap-4">
-            <h3 className="text-base font-semibold text-neutral-200 flex items-center gap-2">
-              <span>📸</span> Pengujian Gambar
+          {/* Panel 1: Upload / Ambil Gambar */}
+          <div className="bg-[#19272E] border-2 border-[#2B3D47] border-b-4 rounded-3xl p-6 flex flex-col gap-4">
+            <h3 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+              <span>📸</span> Gambar Kamera
             </h3>
 
             <input
@@ -105,26 +109,26 @@ export default function Home() {
 
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-neutral-700 hover:border-blue-500/80 transition-all rounded-xl min-h-[260px] flex flex-col items-center justify-center p-4 cursor-pointer bg-neutral-950/50 hover:bg-neutral-950"
+              className="border-2 border-dashed border-[#2B3D47] hover:border-[#1CB0F6] transition-all rounded-2xl min-h-[220px] flex flex-col items-center justify-center p-4 cursor-pointer bg-[#131F24] hover:bg-[#152329]"
             >
               {imageSrc ? (
-                <div className="relative w-full h-[240px] flex items-center justify-center">
+                <div className="relative w-full h-[200px] flex items-center justify-center">
                   <img
                     src={imageSrc}
                     alt="Preview"
-                    className="max-h-full max-w-full rounded-lg object-contain shadow-lg"
+                    className="max-h-full max-w-full rounded-xl object-contain shadow-md"
                   />
                 </div>
               ) : (
                 <div className="text-center flex flex-col items-center gap-2">
-                  <div className="w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center text-2xl text-neutral-400">
-                    ⬆️
+                  <div className="w-12 h-12 rounded-2xl bg-[#19272E] border-2 border-[#2B3D47] flex items-center justify-center text-xl">
+                    📁
                   </div>
-                  <p className="text-sm font-medium text-neutral-300">
-                    Klik untuk memilih atau mengambil gambar
+                  <p className="text-sm font-bold text-white">
+                    Pilih / Foto Gambar
                   </p>
-                  <p className="text-xs text-neutral-500">
-                    Format didukung: JPG, PNG, WEBP
+                  <p className="text-xs font-semibold text-[#8B9FA8]">
+                    JPG, PNG, atau WEBP
                   </p>
                 </div>
               )}
@@ -133,118 +137,84 @@ export default function Home() {
             <div className="flex gap-3">
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex-1 py-2.5 px-4 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-sm font-medium transition text-neutral-200"
+                className="flex-1 py-3 px-4 rounded-2xl bg-[#19272E] border-2 border-[#2B3D47] border-b-4 hover:border-b-2 active:border-b-0 active:translate-y-1 text-xs font-black uppercase tracking-wider text-white transition-all cursor-pointer"
               >
-                Ganti Gambar
+                Ganti Foto
               </button>
               <button
                 onClick={handleScan}
                 disabled={!imageSrc || loading}
-                className="flex-1 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-semibold transition text-white shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2"
+                className="flex-1 py-3 px-4 rounded-2xl bg-[#1CB0F6] border-b-4 border-[#1899D6] hover:brightness-105 active:border-b-0 active:translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-black uppercase tracking-wider text-white transition-all cursor-pointer shadow-lg shadow-[#1CB0F6]/20 flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                    <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                     Menganalisis...
                   </>
                 ) : (
-                  <>🔍 Pindai Objek</>
+                  <>🔍 Pindai Cepat</>
                 )}
               </button>
             </div>
           </div>
 
-          {/* Results Panel */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 flex flex-col gap-4">
-            <h3 className="text-base font-semibold text-neutral-200 flex items-center gap-2">
-              <span>🧠</span> Hasil Analisis Gemini AI
+          {/* Panel 2: Hasil Deteksi */}
+          <div className="bg-[#19272E] border-2 border-[#2B3D47] border-b-4 rounded-3xl p-6 flex flex-col gap-4">
+            <h3 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+              <span>🎯</span> Hasil Deteksi
             </h3>
 
             {error && (
-              <div className="bg-red-950/50 border border-red-800/60 rounded-xl p-4 text-sm text-red-300">
+              <div className="bg-[#FF4B4B]/15 border-2 border-[#FF4B4B] rounded-2xl p-4 text-xs font-bold text-[#FF4B4B]">
                 ⚠️ {error}
               </div>
             )}
 
             {!result && !error && !loading && (
-              <div className="flex-1 flex flex-col items-center justify-center text-center p-8 text-neutral-500">
-                <span className="text-3xl mb-2">👁️</span>
-                <p className="text-sm">
-                  Pilih gambar dan klik tombol &quot;Pindai Objek&quot; untuk melihat deteksi rintangan dan teks TTS.
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-8 text-[#8B9FA8]">
+                <span className="text-4xl mb-3">👁️</span>
+                <p className="text-sm font-bold">
+                  Pilih gambar lalu klik &quot;Pindai Cepat&quot; untuk melihat deteksi instan 1-3 kata.
                 </p>
               </div>
             )}
 
             {loading && (
               <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
-                <div className="w-10 h-10 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-                <p className="text-sm font-medium text-blue-300">
-                  Gemini sedang menganalisis objek dan jalur di depan...
+                <div className="w-12 h-12 border-4 border-[#1CB0F6]/20 border-t-[#1CB0F6] rounded-full animate-spin mb-4"></div>
+                <p className="text-sm font-black text-[#1CB0F6] uppercase tracking-wider">
+                  Mendeteksi Objek...
                 </p>
               </div>
             )}
 
             {result && (
-              <div className="flex flex-col gap-4 animate-in fade-in duration-300">
-                {/* Speech Box */}
-                <div className="bg-blue-950/30 border border-blue-800/40 rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs uppercase font-bold text-blue-400 tracking-wider">
-                      🔊 Suara Text-To-Speech (TTS)
-                    </span>
-                    <button
-                      onClick={() => {
-                        if ("speechSynthesis" in window) {
-                          window.speechSynthesis.cancel();
-                          const u = new SpeechSynthesisUtterance(result.speech_text);
-                          u.lang = "id-ID";
-                          window.speechSynthesis.speak(u);
-                        }
-                      }}
-                      className="text-xs text-blue-300 hover:text-white underline cursor-pointer"
-                    >
-                      Putar Ulang
-                    </button>
-                  </div>
-                  <p className="text-base font-medium text-white leading-relaxed">
-                    &quot;{result.speech_text}&quot;
+              <div className="flex flex-col gap-4 animate-in fade-in duration-200">
+                {/* Result Card ala Duolingo */}
+                <div className="bg-[#131F24] border-2 border-[#58CC02] border-b-4 rounded-2xl p-6 text-center">
+                  <span className="text-xs font-black text-[#58CC02] uppercase tracking-widest block mb-2">
+                    ✅ Objek Terdeteksi
+                  </span>
+                  <p className="text-3xl font-black text-white tracking-wide uppercase">
+                    &quot;{result.main_object}&quot;
                   </p>
                 </div>
 
-                {/* Details Grid */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-neutral-950/60 p-3.5 rounded-xl border border-neutral-800">
-                    <span className="text-xs text-neutral-400 block mb-1">Objek Utama</span>
-                    <span className="text-sm font-bold text-neutral-100">
-                      {result.main_object}
-                    </span>
-                  </div>
-                  <div className="bg-neutral-950/60 p-3.5 rounded-xl border border-neutral-800">
-                    <span className="text-xs text-neutral-400 block mb-1">Status Bahaya</span>
-                    <span
-                      className={`text-sm font-bold ${
-                        result.has_hazard ? "text-red-400" : "text-emerald-400"
-                      }`}
-                    >
-                      {result.has_hazard ? "⚠️ Ada Rintangan/Bahaya" : "✅ Aman"}
-                    </span>
-                  </div>
-                </div>
+                <button
+                  onClick={() => {
+                    if ("speechSynthesis" in window) {
+                      window.speechSynthesis.cancel();
+                      const u = new SpeechSynthesisUtterance(result.speech_text);
+                      u.lang = "id-ID";
+                      window.speechSynthesis.speak(u);
+                    }
+                  }}
+                  className="w-full py-3 px-4 rounded-2xl bg-[#58CC02] border-b-4 border-[#46A302] hover:brightness-105 active:border-b-0 active:translate-y-1 text-xs font-black uppercase tracking-wider text-white transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  🔊 Putar Ulang Suara
+                </button>
 
-                {result.hazard_warning && (
-                  <div className="bg-red-950/40 border border-red-800/50 rounded-xl p-3 text-xs text-red-200">
-                    <strong>Peringatan:</strong> {result.hazard_warning}
-                  </div>
-                )}
-
-                {result.details && (
-                  <div className="bg-neutral-950/40 p-3.5 rounded-xl border border-neutral-800 text-xs text-neutral-300">
-                    <span className="text-neutral-400 font-semibold block mb-1">Deskripsi Tambahan:</span>
-                    {result.details}
-                  </div>
-                )}
-
-                <div className="text-[11px] text-neutral-500 flex justify-between pt-2 border-t border-neutral-800">
+                <div className="text-[11px] font-bold text-[#8B9FA8] flex justify-between pt-2 border-t border-[#2B3D47]">
                   <span>Model: {result.model_used}</span>
                   <span>Endpoint: POST /api/detect</span>
                 </div>
@@ -252,24 +222,10 @@ export default function Home() {
             )}
           </div>
         </div>
-
-        {/* API Specification for Mobile App */}
-        <div className="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-6">
-          <h3 className="text-base font-semibold text-neutral-200 mb-3">
-            📋 Spesifikasi Request Mobile App (Android)
-          </h3>
-          <div className="bg-black/60 rounded-xl p-4 font-mono text-xs text-neutral-300 overflow-x-auto">
-            <p className="text-blue-400 font-bold mb-2">POST /api/detect</p>
-            <p className="text-neutral-400 mb-1">// Header:</p>
-            <p className="text-emerald-400 mb-3">Content-Type: application/json (atau multipart/form-data)</p>
-            <p className="text-neutral-400 mb-1">// Body (JSON):</p>
-            <p>{JSON.stringify({ image: "<base64_string_jpeg>", mimeType: "image/jpeg" }, null, 2)}</p>
-          </div>
-        </div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-neutral-800/80 px-6 py-4 text-center text-xs text-neutral-500">
+      <footer className="border-t-2 border-[#2B3D47] py-4 text-center text-xs font-bold text-[#8B9FA8]">
         AIRIS Smart Assistive Navigation System © 2026
       </footer>
     </div>
