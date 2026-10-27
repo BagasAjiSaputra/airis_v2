@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     try {
       const olRes = await fetch(
         `https://openlibrary.org/api/books?bibkeys=ISBN:${cleanBarcode}&format=json&jscmd=data`,
-        { headers: { "User-Agent": "AIRIS-Assistive/1.0" }, next: { revalidate: 86400 } }
+        { headers: { "User-Agent": "OCTUS-Assistive/1.0" }, next: { revalidate: 86400 } }
       );
       if (olRes.ok) {
         const olData = await olRes.json();
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
 
     if (apiKey) {
       const prompt = found
-        ? `Anda adalah sistem asisten tunanetra AIRIS.
+        ? `Anda adalah sistem asisten tunanetra OCTUS.
 Buat sinopsis atau ringkasan sangat singkat (maksimal 2-3 kalimat, santun, padat dan menarik dalam Bahasa Indonesia) untuk buku berikut agar nyaman didengar saat dibacakan melalui Text-to-Speech:
 Judul: ${title}
 Penulis: ${author}
@@ -115,7 +115,7 @@ ATURAN WAJIB:
 - Jawab HANYA 2 sampai 3 kalimat sinopsis saja!
 - Langsung menceritakan inti cerita / gagasan utama buku.
 - DILARANG menggunakan tanda bintang (* atau **), markdown, atau pembuka/penutup basa-basi.`
-        : `Anda adalah sistem asisten tunanetra AIRIS.
+        : `Anda adalah sistem asisten tunanetra OCTUS.
 Pengguna mendeteksi barcode nomor: ${cleanBarcode}.
 Apakah nomor ini adalah ISBN buku yang Anda ketahui?
 Jika ya, berikan respon dengan format persis:

@@ -8,7 +8,7 @@ const CANDIDATE_MODELS = [
   "gemini-3.5-flash",
 ];
 
-const SYSTEM_PROMPT = `Identifikasi objek, simbol, atau rintangan utama yang ada di depan kamera untuk navigasi tunanetra AIRIS.
+const SYSTEM_PROMPT = `Identifikasi objek, simbol, atau rintangan utama yang ada di depan kamera untuk navigasi tunanetra OCTUS.
 ATURAN WAJIB:
 - JAWAB HANYA 1 SAMPAI 3 KATA SAJA! Langsung nama objeknya.
 - DILARANG membuat kalimat panjang atau penjelasan.
@@ -192,7 +192,7 @@ export async function POST(req: NextRequest) {
         details: detectedName,
         has_hazard: false,
         hazard_warning: null,
-        model_used: "AIRIS-Engine",
+        model_used: "OCTUS-Engine",
       },
       { status: 200, headers: corsHeaders }
     );

@@ -67,7 +67,7 @@ export default function Home() {
             </svg>
           </div>
           <div>
-            <h1 className="text-base font-black tracking-wide text-white uppercase">AIRIS Vision</h1>
+            <h1 className="text-base font-black tracking-wide text-white uppercase">OCTUS Vision</h1>
             <p className="text-xs font-bold text-[#8B9FA8]">Deteksi Objek Cepat &amp; Presisi</p>
           </div>
         </div>
@@ -250,7 +250,7 @@ export default function Home() {
                 </button>
 
                 <div className="text-[11px] font-bold text-[#8B9FA8] flex justify-between pt-2 border-t border-[#2B3D47]">
-                  <span>Mesin: AIRIS Neural Vision</span>
+                  <span>Mesin: OCTUS Neural Vision</span>
                   <span>Endpoint: POST /api/detect</span>
                 </div>
               </div>
@@ -261,7 +261,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t-2 border-[#2B3D47] py-4 text-center text-xs font-bold text-[#8B9FA8]">
-        AIRIS Smart Assistive Navigation System © 2026
+        OCTUS Smart Assistive Navigation System © 2026
       </footer>
     </div>
   );
